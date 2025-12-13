@@ -2,24 +2,25 @@ import { ThemedText } from '@/components/themed-text';
 import axiosInstance from '@/constants/axiosInstance';
 import { Movie } from '@/constants/models';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+
+
+const fetchMovies = async () => {
+    const { data } = await axiosInstance.get('movies/');
+    return data;
+};
 
 
 const LatestScreen = () => {
     const router = useRouter();
-    const [isLoading, setLoading] = useState(true);
-    const [movies, setMovies] = useState([])
 
-    useEffect(() => {
-        axiosInstance.get('movies/')
-            .then((response) => response.data)
-            .then((response) => setMovies(response))
-            .catch((error) => alert(error))
-            .finally(() => setLoading(false))
-    }, []);
+    const { data: movies, isLoading, error } = useQuery({
+        queryKey: ['movies'],
+        queryFn: fetchMovies,
+    });
 
     const renderItem = ({ item }: { item: Movie }) => {
         
@@ -29,7 +30,7 @@ const LatestScreen = () => {
                     marginBottom: 10,
                     marginTop: 10
                 }}
-                onPress={() => router.navigate({pathname: "./movie", params: { movieId: item?.id }})}
+                onPress={() =>   router.push({ pathname: './movie/[id]', params: { id: item.id } })}
             >
                 <View
                     style={{

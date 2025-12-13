@@ -1,17 +1,23 @@
+import axiosInstance from '@/constants/axiosInstance'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams } from 'expo-router'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Animated, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 
 
 const Movie = () => {
-    const params = useLocalSearchParams();
-    const [movie, setMovie] = useState(null)
+    const id = useLocalSearchParams<{ id: string }>();
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        let itemId = params.movieId;
-        setMovie(itemId);
-    }, [])
+    const { data: movie } = useQuery({
+    queryKey: ['movie', id],
+    queryFn: () => axiosInstance.get(`movie/${id.id}/detail`).then(r => r.data),
+    initialData: () =>
+        queryClient
+        .getQueryData<any[]>(['movies'])
+        ?.find(m => m.id === Number(id)),
+    });
 
 
     return (
@@ -31,7 +37,7 @@ const Movie = () => {
                         >
                             <View style={{ height: 200 }}>
                                 <Image
-                                    source={{ uri: `${movie.cover_photo}` }}
+                                    source={{ uri: `${movie?.cover_photo}` }}
                                     resizeMode="cover"
                                     style={{
                                         width: 400,
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'transparent'
     },
-    aboutMoviee: {
+    aboutMovie: {
         paddingLeft: 20,
         marginLeft: 20
     },
