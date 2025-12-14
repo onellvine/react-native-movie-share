@@ -1,26 +1,27 @@
 import axiosInstance from '@/constants/axiosInstance';
 import { Movie } from '@/constants/models';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 
-const mediaURL = "http://192.168.1.100:8000"
+const baseURL: string = "http://192.168.1.100:8000/"
+
+const fetchMovies = async () => {
+    const { data } = await axiosInstance.get('category/MOV/');
+    return data;
+};
 
 const MoviesScreen = () => {
     const router = useRouter();
-    const [isLoading, setLoading] = useState(true);
-    const [movies, setMovies] = useState([])
 
-    useEffect(() => {
-        axiosInstance.get('category/MOV/')
-            .then((response) => response.data)
-            .then((response) => setMovies(response))
-            .catch((error) => alert(error))
-            .finally(() => setLoading(false))
-    }, [])
+    const { data: movies, isLoading, error } = useQuery({
+        queryKey: ['movies'],
+        queryFn: fetchMovies,
+    });
 
     const renderItem = ({ item } : {item: Movie}) => {
 
@@ -30,7 +31,7 @@ const MoviesScreen = () => {
                     marginBottom: 10,
                     marginTop: 10
                 }}
-                onPress={() => router.navigate({ pathname: "./movie", params: { movieId: item?.id }})}
+                onPress={() => router.push({ pathname: '/movie/[id]', params: { id: item.id } })}
             >
                 <View
                     style={{
@@ -38,7 +39,7 @@ const MoviesScreen = () => {
                     }}
                 >
                     <Image
-                        source={{ uri: mediaURL+`${item.cover_photo}` }}
+                        source={{ uri: baseURL+`${item.cover_photo}` }}
                         resizeMode='cover'
                         style={{
                             width: '100%',
@@ -74,8 +75,15 @@ const MoviesScreen = () => {
                         flexDirection: 'row'
                     }}
                 >
-                    <Ionicons name="star" size={15} color='yellow' style={{ marginRight: 7 }} />
-                    <ThemedText style={{ fontSize: 20 }}>{item.rating}</ThemedText>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Ionicons name="star" size={15} color='yellow' style={{ marginRight: 7 }} />
+                        <ThemedText style={{ fontSize: 16 }}>{item.rating}</ThemedText>
+                    </View>
                     <View
                         style={{
                             position: 'absolute',
@@ -92,8 +100,7 @@ const MoviesScreen = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor='transparent' barStyle='dark-content' />
-            <ThemedText type='title' style={styles.mainTitle}>Available</ThemedText>
+            <ThemedText type='title' style={{marginTop: -30, marginLeft: 20}}>Available</ThemedText>
             <ThemedText type='title' style={styles.mainTitle}>and Latest Movies</ThemedText>
             {isLoading ? <ActivityIndicator /> : <FlatList
 

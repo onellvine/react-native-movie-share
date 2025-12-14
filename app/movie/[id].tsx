@@ -1,108 +1,109 @@
 import axiosInstance from '@/constants/axiosInstance'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams } from 'expo-router'
-import React from 'react'
-import { Animated, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Animated, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-
+import { ThemedText } from '@/components/themed-text'
 
 const Movie = () => {
     const id = useLocalSearchParams<{ id: string }>();
     const queryClient = useQueryClient();
 
     const { data: movie } = useQuery({
-    queryKey: ['movie', id],
-    queryFn: () => axiosInstance.get(`movie/${id.id}/detail`).then(r => r.data),
-    initialData: () =>
-        queryClient
-        .getQueryData<any[]>(['movies'])
-        ?.find(m => m.id === Number(id)),
+        queryKey: ['movie', id.id],
+        queryFn: () => axiosInstance.get(`movie/${id.id}/detail`).then(r => r.data),
+        initialData: () =>
+            queryClient
+                .getQueryData<any[]>(['latest'])
+                ?.find(m => m.id === Number(id.id)),
     });
 
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            {movie ?
-                <View>
-                    <StatusBar backgroundColor='transparent' barStyle='dark-content' />
-                    <Animated.ScrollView
-                        horizontal
-                        pagingEnabled
-                        scrollEventThrottle={16}
-                        snapToAlignment="center"
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        <View
-                            style={{ alignItems: 'center' }}
+        <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.container}>
+                {movie ?
+                    <View>
+                        <Animated.ScrollView
+                            horizontal
+                            pagingEnabled
+                            scrollEventThrottle={16}
+                            snapToAlignment="center"
+                            showsHorizontalScrollIndicator={false}
                         >
-                            <View style={{ height: 200 }}>
-                                <Image
-                                    source={{ uri: `${movie?.cover_photo}` }}
-                                    resizeMode="cover"
-                                    style={{
-                                        width: 400,
-                                        height: '100%'
-                                    }}
-                                />
-                            </View>
-                        </View>
-                    </Animated.ScrollView>
-                    <Text style={styles.mainTitle}>{movie.title}</Text>
-                    <View style={styles.aboutMovie}>
-                        <Text style={styles.title}>Genre</Text>
-                        <Text>
-                            {movie.genre.join(' / ')}
-                        </Text>
-                        <Text style={styles.title}>Synopsis</Text>
-                        <Text>Dummy Synopsis</Text>
-                        <Text style={styles.title}>Cast</Text>
-                        <Text>{movie.cast.join(", ")}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.title}>Watched this Movie? <Text>Leave a Review</Text></Text>
-                        <TextInput
-                            style={{
-                                borderWidth: 2,
-                                borderColor: '#03A9F4',
-                                height: 45,
-                                borderRadius: 15,
-                                padding: 5
-                                
-                            }}
-                            placeholder="Comment about this..."
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.mainTitle}>Reviews</Text>
-                        <View style={styles.singleReview}>
-                            <TouchableOpacity>
-                                <Image
-                                    source={{ uri: `${movie.cover_photo}` }}
-                                    resizeMode='cover'
-                                    style={{
-                                        width: 50,
-                                        height: 50,
-                                        borderRadius: 50
-                                    }}
-                                />
-                            </TouchableOpacity>
                             <View
-                                style={{
-                                    marginLeft: 10
-                                }}
+                                style={{ alignItems: 'center' }}
                             >
-                                <Text style={{ fontWeight: 'bold' }} >Username</Text>
-                                <Text style={{ fontStyle: 'italic' }}>The quick brown fox jumps over the lazy dog</Text>
+                                <View style={{ height: 200 }}>
+                                    <Image
+                                        source={{ uri: `${movie?.cover_photo}` }}
+                                        resizeMode="cover"
+                                        style={{
+                                            width: 400,
+                                            height: '100%',
+                                        }}
+                                    />
+                                </View>
+                            </View>
+                        </Animated.ScrollView>
+                        <ThemedText type='title' style={styles.mainTitle}>{movie.title}</ThemedText>
+                        <View style={styles.aboutMovie}>
+                            <ThemedText type='defaultSemiBold' style={styles.title}>Genre</ThemedText>
+                            <ThemedText style={styles.content}>
+                                {movie.genre.join(' / ')}
+                            </ThemedText>
+                            <ThemedText type='defaultSemiBold' style={styles.title}>Synopsis</ThemedText>
+                            <ThemedText style={styles.content}>Dummy Synopsis</ThemedText>
+                            <ThemedText type='defaultSemiBold' style={styles.title}>Cast</ThemedText>
+                            <ThemedText style={styles.content}>{movie.cast.join(", ")}</ThemedText>
+                        </View>
+                        <View>
+                            <ThemedText type='subtitle' style={styles.title}>Watched this Movie? <Text>Leave a Review</Text></ThemedText>
+                            <TextInput
+                                style={{
+                                    borderWidth: 2,
+                                    borderColor: '#03A9F4',
+                                    height: 45,
+                                    borderRadius: 15,
+                                    padding: 5,
+                                    marginHorizontal: 10,
+                                }}
+                                placeholder="Comment about this..."
+                            />
+                        </View>
+                        <View>
+                            <ThemedText type='subtitle' style={styles.mainTitle}>Reviews</ThemedText>
+                            <View style={styles.singleReview}>
+                                <TouchableOpacity>
+                                    <Image
+                                        source={{ uri: `${movie.cover_photo}` }}
+                                        resizeMode='cover'
+                                        style={{
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 50
+                                        }}
+                                    />
+                                </TouchableOpacity>
+                                <View
+                                    style={{
+                                        marginLeft: 10
+                                    }}
+                                >
+                                    <ThemedText type='link' style={{ fontWeight: 'bold' }} >Username</ThemedText>
+                                    <ThemedText style={{ fontStyle: 'italic' }}>The quick brown fox jumps over the lazy dog</ThemedText>
+                                </View>
                             </View>
                         </View>
+
+
                     </View>
-                    
+                    : <View></View>
+                }
 
-                </View>
-                : <View></View>
-            }
-
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     )
 }
 
@@ -113,17 +114,19 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent'
     },
     aboutMovie: {
-        paddingLeft: 20,
-        marginLeft: 20
+        // display: 'contents',
+        marginHorizontal: 5,
     },
     title: {
-        fontWeight: 'bold',
-        color: '#212121',
-        fontSize: 20
+        margin: 10,
     },
     mainTitle: {
-        fontWeight: 'bold',
-        fontSize: 35
+        marginVertical: 15,
+        marginHorizontal: 10,
+    },
+    content: {
+        marginVertical: 5,
+        marginHorizontal: 10,
     },
     singleReview: {
         flexDirection: 'row',

@@ -4,11 +4,10 @@ import { Movie } from '@/constants/models';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-const fetchMovies = async () => {
+const fetchLatest = async () => {
     const { data } = await axiosInstance.get('movies/');
     return data;
 };
@@ -17,9 +16,9 @@ const fetchMovies = async () => {
 const LatestScreen = () => {
     const router = useRouter();
 
-    const { data: movies, isLoading, error } = useQuery({
-        queryKey: ['movies'],
-        queryFn: fetchMovies,
+    const { data: latest, isLoading, error } = useQuery({
+        queryKey: ['latest'],
+        queryFn: fetchLatest,
     });
 
     const renderItem = ({ item }: { item: Movie }) => {
@@ -30,7 +29,7 @@ const LatestScreen = () => {
                     marginBottom: 10,
                     marginTop: 10
                 }}
-                onPress={() =>   router.push({ pathname: './movie/[id]', params: { id: item.id } })}
+                onPress={() => router.push({ pathname: '/movie/[id]', params: { id: item.id } })}
             >
                 <View
                     style={{
@@ -74,8 +73,15 @@ const LatestScreen = () => {
                         flexDirection: 'row'
                     }}
                 >
-                    <Ionicons name="star" size={15} color='yellow' style={{ marginRight: 7 }} />
-                    <ThemedText style={{ fontSize: 16 }}>{item.rating}</ThemedText>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Ionicons name="star" size={15} color='yellow' style={{ marginRight: 7 }} />
+                        <ThemedText style={{ fontSize: 16 }}>{item.rating}</ThemedText>
+                    </View>
                     <View
                         style={{
                             position: 'absolute',
@@ -92,12 +98,10 @@ const LatestScreen = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor='transparent' />
-            <ThemedText type='title' style={styles.mainTitle}>Latest Movies</ThemedText>
+            <ThemedText type='title' style={{marginTop: -30, marginLeft: 20}}>Latest Movies</ThemedText>
             <ThemedText type='title' style={styles.mainTitle}>& TV Series</ThemedText>
             {isLoading ? <ActivityIndicator /> : <FlatList
-
-                data={movies}
+                data={latest}
                 keyExtractor={item => `${item.id}`}
                 renderItem={renderItem}
                 contentContainerStyle={{
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
     },
     mainTitle: {
         // textAlign: 'center',
-        marginLeft: 20,
+        marginLeft: 20,        
     },
     title: {
         fontWeight: 'bold',

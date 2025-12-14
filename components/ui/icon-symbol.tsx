@@ -8,6 +8,8 @@ type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof Materia
 const MAPPING = {
     'house.fill': 'home',
     'paperplane.fill': 'send',
+    'play.rectangle.fill': 'movie',
+    'tv.circle.fill': 'tv'
 } as IconMapping;
 
 type IconSymbolName = keyof typeof MAPPING;

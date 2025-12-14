@@ -2,10 +2,14 @@ import { Formik } from 'formik';
 import React from 'react';
 import { Button, ScrollView, StatusBar, StyleSheet, TextInput, View } from 'react-native';
 
-import { Link } from 'expo-router';
+import axiosInstance from '@/constants/axiosInstance';
+import { Link, useRouter } from 'expo-router';
+import * as SecureStore from "expo-secure-store";
 import { ThemedText } from '../themed-text';
 
 export default function LoginScreen() {
+
+    const router = useRouter();
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -19,7 +23,21 @@ export default function LoginScreen() {
                         password: values.password
 
                     }))
+                    await axiosInstance
+                        .post('token/', JSON.stringify({
+                            phone: values.phone,
+                            password: values.password
 
+                        })).then(async (response) => {
+                            await SecureStore.setItemAsync('access_token', response.data.access)
+                            await SecureStore.setItemAsync('refresh_token', response.data.refresh)
+                            axiosInstance.defaults.headers['Authorization'] = 'JWT ' + await SecureStore.getItemAsync('access_token')
+                            
+                            router.navigate('/(tabs)/home');
+                        }).catch((error) => {
+                            console.log(error)
+                            alert(error)
+                        })
                     actions.resetForm()
                 }}
             >
@@ -41,7 +59,7 @@ export default function LoginScreen() {
                             value={props.values.password}
                         />
 
-                        <Button title="Login" onPress={() => props.handleSubmit} />
+                        <Button title="Login" onPress={() => props.handleSubmit()} />
                         <ThemedText style={styles.info} >
                             No account? Register
                             <Link href={"/(auth)"} style={styles.link}> Here </Link>
@@ -71,6 +89,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },    
     input: {
+        color: '#fff',
         borderWidth: 1,
         borderColor: '#212121',
         padding: 8,
