@@ -46,7 +46,7 @@ export default function RegisterScreen() {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <StatusBar backgroundColor='transparent' barStyle='dark-content' />
-            <ThemedText type='title' style={styles.title}>Movie Shop Register an Account</ThemedText>
+            <ThemedText type='title' style={styles.title}>Movie Share Register an Account</ThemedText>
             <Formik 
                 initialValues = {{
                     username: '', phone: '', password1: '', password2: ''

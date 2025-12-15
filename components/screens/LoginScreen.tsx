@@ -14,7 +14,7 @@ export default function LoginScreen() {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <StatusBar backgroundColor='transparent' barStyle='dark-content' />
-            <ThemedText type='title' style={styles.title}>Movie Shop Login</ThemedText>
+            <ThemedText type='title' style={styles.title}>Movie Share Login</ThemedText>
             <Formik
                 initialValues={{ phone: '', password: '' }}
                 onSubmit={async (values, actions) => {
